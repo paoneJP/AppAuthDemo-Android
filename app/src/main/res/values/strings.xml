@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name" translatable="false">AppAuth Demo</string>
+    <string name="ui_singin_button_label">SIGN IN</string>
+    <string name="ui_singout_button_label">SIGN OUT</string>
+    <string name="ui_call_api_button_label">CALL API</string>
+    <string name="ui_show_state_button_label">SHOW AUTH STATE</string>
+    <string name="ui_token_refresh_button_label">FORCE REFRESH TOKEN</string>
+    <string name="msg_auth_ok">Authorization succeeded.</string>
+    <string name="msg_auth_ng">Authorization failed.</string>
+    <string name="msg_auth_reset">Authentication status has been reset.</string>
+    <string name="msg_show_auth_state">Authorization status (appAuthState) is displayed.</string>
+    <string name="msg_app_start">Application started.</string>
+    <string name="msg_reauthz_required">Authorization status invalidated. Please sign in again.</string>
+    <string name="msg_api_error">An unknown error occurred during API call.</string>
+    <string name="msg_api_ok">API responded normally.</string>
+</resources>
