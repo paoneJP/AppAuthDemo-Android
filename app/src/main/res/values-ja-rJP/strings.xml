@@ -7,10 +7,11 @@
     <string name="ui_token_refresh_button_label">トークン強制更新</string>
     <string name="msg_auth_ok">認証が成功しました。</string>
     <string name="msg_auth_ng">認証に失敗しました。</string>
-    <string name="msg_auth_reset">認証状態をリセットしました。</string>
+    <string name="msg_auth_revoke_ok">認証状態を取り消しました。</string>
     <string name="msg_show_auth_state">認証状態 (appAuthState) を表示しました。</string>
     <string name="msg_app_start">アプリケーションを開始しました。</string>
     <string name="msg_reauthz_required">認証状態が無効になりました。サインインしなおしてください。</string>
     <string name="msg_api_error">API呼出し中に不明なエラーが発生しました。</string>
     <string name="msg_api_ok">APIが正常に応答しました。</string>
+    <string name="msg_auth_revoke_ng">認証状態の取り消し中にエラーが発生しました。 もう一度お試しください。</string>
 </resources>

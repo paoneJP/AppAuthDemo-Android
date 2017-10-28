@@ -7,10 +7,11 @@
     <string name="ui_token_refresh_button_label">FORCE REFRESH TOKEN</string>
     <string name="msg_auth_ok">Authorization succeeded.</string>
     <string name="msg_auth_ng">Authorization failed.</string>
-    <string name="msg_auth_reset">Authentication status has been reset.</string>
+    <string name="msg_auth_revoke_ok">Authentication status has been revoked.</string>
     <string name="msg_show_auth_state">Authorization status (appAuthState) is displayed.</string>
     <string name="msg_app_start">Application started.</string>
     <string name="msg_reauthz_required">Authorization status invalidated. Please sign in again.</string>
     <string name="msg_api_error">An unknown error occurred during API call.</string>
     <string name="msg_api_ok">API responded normally.</string>
+    <string name="msg_auth_revoke_ng">An error occurred while revoking the authorization status. Please try again.</string>
 </resources>

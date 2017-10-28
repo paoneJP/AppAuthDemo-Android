@@ -9,7 +9,7 @@ Kotlin + AppAuth for Android ネイティブアプリ実装サンプル
 
 ## 開発環境
 
- * Android Studio 3.0 Beta 7
+ * Android Studio 3.0
  * Kotlin 1.1
  * AppAuth for Android 0.7.0
  * API Level 21以上 (Android 5.0以上)
@@ -21,8 +21,8 @@ Kotlin + AppAuth for Android ネイティブアプリ実装サンプル
  * Google Accounts の UserInfo エンドポイントをバックエンドAPIに見立てたAPIアクセス
  * リフレッシュトークンを使ったアクセストークンの更新
  * アクセストークン、リフレッシュトークンの SharedPreferences への保存とその際の暗号化
+ * サインアウトとその際のトークン失効 (OAuth 2.0 Token Revocation)
  * その他補助的な機能として以下の2つを実装
-    - サインアウト（アプリ内のトークンを破棄するだけ）
     - 強制的にアクセストークンを更新
 
 
@@ -48,7 +48,7 @@ Kotlin + AppAuth for Android ネイティブアプリ実装サンプル
  * 「認証状態表示」
     - AppAuth の内部状態を appAuthStatre (Summary) および appAuthState (Full) エリアに表示します。
  * 「サインアウト」
-    - AppAuth の内部状態を初期化します。
+    - Google Accounts にアクセストークン、リフレッシュトークンの失効を要求し、AppAuth の内部状態を初期化します。
  * 「トークン強制更新」
     - AppAuth の内部状態の `needsTokenRefresh` を `true` にしてAPI呼出しを実行します。
       アクセストークンが強制的に更新されてからAPIが呼び出されます。
@@ -82,6 +82,12 @@ Kotlin + AppAuth for Android ネイティブアプリ実装サンプル
  * SharedPreferences への保存は `onPause()` で行ない、 `onCreate()` で `savedInstanceState` が無いときに SharedPreferences の内容を復元しています。
  * アクセストークン、リフレッシュトークンの暗号化の処理は `encryptString()` と `decryptString()` で行なっています。
  * 暗号の鍵管理には Android KeyStore System を使っています。 API Level により扱えるアルゴリズムに違いがあるため、 API Level 23 以上と API Level 21, 22 で動作を変えて対応しています。
+
+### アクセストークンの失効
+
+ * `revokeAuthorization()` を呼び出した際に、Google Accounts にトークン失効を要求します。
+ * トークンの失効ができれば AppAuth の内部状態を初期化し、サインイン前の状態とします。
+ * トークンの失効中にエラーが生じた場合は、サインイン状態を保つようにしています。
 
 
 ## 参考サイト

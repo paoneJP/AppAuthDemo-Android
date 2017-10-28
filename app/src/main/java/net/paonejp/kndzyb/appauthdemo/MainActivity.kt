@@ -15,13 +15,13 @@ import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import net.openid.appauth.*
-import net.paonejp.kndzyb.appauthdemo.util.HttpGetJsonTask
+import net.paonejp.kndzyb.appauthdemo.util.HttpRequestJsonTask
 import net.paonejp.kndzyb.appauthdemo.util.decryptString
 import net.paonejp.kndzyb.appauthdemo.util.encryptString
 import org.json.JSONException
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_OK
-import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
+import java.io.IOException
+import java.net.HttpURLConnection.*
 import java.text.DateFormat
 import java.util.*
 
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickSignoutButton(view: View) {
-        resetAuthorization()
+        revokeAuthorization()
     }
 
     fun onClickCallApiButton(view: View) {
@@ -148,18 +148,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         val resp = AuthorizationResponse.fromIntent(data)
+        val ex = AuthorizationException.fromIntent(data)
+        appAuthState.update(resp, ex)
 
-        // 以下の1行はデモでレスポンスされたCodeを確認するためのもの。本番では不要。
-        // The following one line is for demonstrating responded Authorization Code.
-        // It is unnecessary in the production software.
-        appAuthState.update(resp, AuthorizationException.fromIntent(data))
-
-        if (resp == null) {
-            val ex = AuthorizationException.fromIntent(data)
-            if (ex != null) {
-                val m = Throwable().stackTrace[0]
-                Log.e("MainActivity", "${m}: ${ex}")
-            }
+        if (ex != null || resp == null) {
+            val m = Throwable().stackTrace[0]
+            Log.e("MainActivity", "${m}: ${ex}")
             whenAuthorizationFails(ex)
             return
         }
@@ -190,9 +184,60 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun resetAuthorization() {
-        appAuthState = AuthState()
-        uResponseView.text = getText(R.string.msg_auth_reset)
+    private fun revokeAuthorization() {
+        val uri = appAuthState.authorizationServiceConfiguration?.discoveryDoc?.docJson
+                ?.opt("revocation_endpoint") as String?
+
+        if (uri == null) {
+            appAuthState = AuthState()
+            whenRevokeAuthorizationSucceeds()
+            return
+        }
+
+        val param = "token=${appAuthState.refreshToken}&token_type_hint=refresh_token"
+        HttpRequestJsonTask(uri, param, null, { code, data, ex ->
+            when (code) {
+                HTTP_OK -> {
+                    appAuthState = AuthState()
+                    whenRevokeAuthorizationSucceeds()
+                }
+
+                HTTP_BAD_REQUEST -> {
+
+                    // トークンがすでに失効されている時は処理成功とみなすのが良い。
+                    // Google Accountsの場合は error_description の値で判定することができる。
+                    // When the token has already been revoked it is better to regard it
+                    // as successful processing. When using Google Accounts, it can be
+                    // judged by the value of error_description.
+                    if (data?.optString("error") == "invalid_token" &&
+                            data?.optString("error_description") == "Token expired or revoked") {
+                        appAuthState = AuthState()
+                        whenRevokeAuthorizationSucceeds()
+                        return@HttpRequestJsonTask
+                    }
+
+                    val msg = "Server returned HTTP response code: %d for URL: %s with message: %s"
+                            .format(code, uri, data.toString())
+                    whenRevokeAuthorizationFails(IOException(msg))
+                }
+
+                else -> whenRevokeAuthorizationFails(ex)
+            }
+        }).execute()
+    }
+
+    // 認証状態取り消し時の処理を書く。
+    // Write program to be executed when revoking authorization succeeds.
+    private fun whenRevokeAuthorizationSucceeds() {
+        uResponseView.text = getText(R.string.msg_auth_revoke_ok)
+        doShowAppAuthState()
+    }
+
+    // 認証状態取り消し時の処理を書く。
+    // Write program to be executed when revoking authorization fails.
+    private fun whenRevokeAuthorizationFails(ex: Exception?) {
+        uResponseView.text = "%s\n\n%s"
+                .format(getText(R.string.msg_auth_revoke_ng), ex ?: "")
         doShowAppAuthState()
     }
 
@@ -281,7 +326,7 @@ class MainActivity : AppCompatActivity() {
                 if (accessToken == null) {
                     callback(X_HTTP_ERROR, null, null)
                 } else {
-                    HttpGetJsonTask(uri, accessToken, { code, data, ex2 ->
+                    HttpRequestJsonTask(uri, null, accessToken, { code, data, ex2 ->
                         callback(code, data, ex2)
                     }).execute()
                 }
