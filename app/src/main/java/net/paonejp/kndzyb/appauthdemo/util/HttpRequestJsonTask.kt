@@ -18,6 +18,8 @@ import java.net.URL
 private val NETWORK_TIMEOUT_MSEC = 5000
 private val X_HTTP_ERROR = -9
 
+private val LOG_TAG = "HttpRequestJsonTask"
+
 
 class HttpRequestJsonTask(
         private val uri: String,
@@ -52,13 +54,13 @@ class HttpRequestJsonTask(
 
             if (conn.responseCode != HttpURLConnection.HTTP_OK) {
                 val m = Throwable().stackTrace[0]
-                Log.e("HttpRequestJsonTask", "${m}: ${conn.responseCode}, ${body}")
+                Log.e(LOG_TAG, "${m}: ${conn.responseCode}, ${body}")
             }
             return Response(conn.responseCode, JSONObject(body), null)
 
         } catch (ex: Exception) {
             val m = Throwable().stackTrace[0]
-            Log.e("HttpRequestJsonTask", "${m}: ${ex}")
+            Log.e(LOG_TAG, "${m}: ${ex}")
             return Response(X_HTTP_ERROR, null, ex)
         }
     }

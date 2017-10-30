@@ -37,6 +37,8 @@ private val REQCODE_AUTH = 100
 private val X_HTTP_NEED_REAUTHZ = -1
 private val X_HTTP_ERROR = -9
 
+private val LOG_TAG = "MainActivity"
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                         .let { AuthState.jsonDeserialize(it) }
             } catch (ex: JSONException) {
                 val m = Throwable().stackTrace[0]
-                Log.e("MainActivity", "${m}: ${ex}")
+                Log.e(LOG_TAG, "${m}: ${ex}")
                 appAuthState = AuthState()
             }
         } else {
@@ -133,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 if (ex != null) {
                     val m = Throwable().stackTrace[0]
-                    Log.e("MainActivity", "${m}: ${ex}")
+                    Log.e(LOG_TAG, "${m}: ${ex}")
                 }
                 whenAuthorizationFails(ex)
             }
@@ -143,7 +145,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleAuthorizationResponse(data: Intent?) {
         if (data == null) {
             val m = Throwable().stackTrace[0]
-            Log.e("MainActivity", "${m}: unexpected intent call")
+            Log.e(LOG_TAG, "${m}: unexpected intent call")
             return
         }
 
@@ -153,7 +155,7 @@ class MainActivity : AppCompatActivity() {
 
         if (ex != null || resp == null) {
             val m = Throwable().stackTrace[0]
-            Log.e("MainActivity", "${m}: ${ex}")
+            Log.e(LOG_TAG, "${m}: ${ex}")
             whenAuthorizationFails(ex)
             return
         }
@@ -316,7 +318,7 @@ class MainActivity : AppCompatActivity() {
         appAuthState.performActionWithFreshTokens(service, { accessToken, _, ex ->
             if (ex != null) {
                 val m = Throwable().stackTrace[0]
-                Log.e("MainActivity", "${m}: ${ex}")
+                Log.e(LOG_TAG, "${m}: ${ex}")
                 if (appAuthState.isAuthorized) {
                     callback(X_HTTP_ERROR, null, ex)
                 } else {

@@ -39,6 +39,8 @@ private val KEY_ENC_KEY_SERIAL_NUMBER = 1L
 
 private val BASE64_FLAGS = Base64.NO_WRAP + Base64.NO_PADDING
 
+private val LOG_TAG = "Crypto"
+
 
 fun encryptString(context: Context, data: String?): String? {
     if (data == null) {
@@ -53,7 +55,7 @@ fun encryptString(context: Context, data: String?): String? {
                 Base64.encodeToString(c.doFinal(data.toByteArray()), BASE64_FLAGS))
     } catch (ex: Exception) {
         val m = Throwable().stackTrace[0]
-        Log.e("MainActivity", "${m}: ${ex}")
+        Log.e(LOG_TAG, "${m}: ${ex}")
         return null
     }
 }
@@ -72,7 +74,7 @@ fun decryptString(context: Context, data: String?): String? {
         return String(c.doFinal(Base64.decode(d[1].toByteArray(), BASE64_FLAGS)))
     } catch (ex: Exception) {
         val m = Throwable().stackTrace[0]
-        Log.e("Crypto", "${m}: ${ex}")
+        Log.e(LOG_TAG, "${m}: ${ex}")
         return null
     }
 }
@@ -105,7 +107,7 @@ private fun getDataEncryptionKeyAPI23orHigher(): SecretKey {
                 .build())
         val key = kg.generateKey()
         val m = Throwable().stackTrace[0]
-        Log.i("Crypto", "${m}: A new data encryption key was generated.")
+        Log.i(LOG_TAG, "${m}: A new data encryption key was generated.")
         return key
     }
 }
@@ -136,7 +138,7 @@ private fun getDataEncryptionKeyAPI22orLower(context: Context): SecretKey {
                             .build())
             val kp = kpg.generateKeyPair()
             val m = Throwable().stackTrace[0]
-            Log.i("Crypto", "${m}: A new key encryption key pair was generated.")
+            Log.i(LOG_TAG, "${m}: A new key encryption key pair was generated.")
             return kp
         }
     }
@@ -149,7 +151,7 @@ private fun getDataEncryptionKeyAPI22orLower(context: Context): SecretKey {
             return Base64.encodeToString(c.doFinal(key), BASE64_FLAGS)
         } catch (ex: Exception) {
             val m = Throwable().stackTrace[0]
-            Log.e("Crypto", "${m}: ${ex}")
+            Log.e(LOG_TAG, "${m}: ${ex}")
             return null
         }
     }
@@ -162,7 +164,7 @@ private fun getDataEncryptionKeyAPI22orLower(context: Context): SecretKey {
             return c.doFinal(Base64.decode(key, BASE64_FLAGS))
         } catch (ex: Exception) {
             val m = Throwable().stackTrace[0]
-            Log.e("Crypto", "${m}: ${ex}")
+            Log.e(LOG_TAG, "${m}: ${ex}")
             return null
         }
     }
@@ -174,7 +176,7 @@ private fun getDataEncryptionKeyAPI22orLower(context: Context): SecretKey {
         SecureRandom.getInstance("SHA1PRNG").nextBytes(key)
         prefs.edit().putString("aesSecretKey", encryptAesKey(key)).apply()
         val m = Throwable().stackTrace[0]
-        Log.i("Crypto", "${m}: A new data encryption key was generated.")
+        Log.i(LOG_TAG, "${m}: A new data encryption key was generated.")
     }
     return SecretKeySpec(key, "AES")
 
