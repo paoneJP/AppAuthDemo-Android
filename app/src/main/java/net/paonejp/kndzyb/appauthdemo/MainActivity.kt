@@ -206,13 +206,15 @@ class MainActivity : AppCompatActivity() {
 
                 HTTP_BAD_REQUEST -> {
 
-                    // トークンがすでに失効されている時は処理成功とみなすのが良い。
-                    // Google Accountsの場合は error_description の値で判定することができる。
-                    // When the token has already been revoked it is better to regard it
-                    // as successful processing. When using Google Accounts, it can be
-                    // judged by the value of error_description.
-                    if (data?.optString("error") == "invalid_token" &&
-                            data?.optString("error_description") == "Token expired or revoked") {
+                    // RFC 7009 に示されているように、すでに無効なトークンの無効化リクエストに
+                    // 対しサーバーは HTTP 200 を応答するが、一部のサーバーはエラーを応答する
+                    // ことがある。Google Accounts の場合、 HTTP 400 で "invalid_token" エラー
+                    // を返すため、それを成功応答として処理する。
+                    // As described in RFC 7009, the server responds with HTTP 200 for revocation
+                    // request to already invalidated token, but some servers may respond with an
+                    // error. Google Accounts returns "invalid_token" error with HTTP 400, it must
+                    // be treated as a successful response.
+                    if (data?.optString("error") == "invalid_token") {
                         appAuthState = AuthState()
                         whenRevokeAuthorizationSucceeds()
                         return@HttpRequestJsonTask
